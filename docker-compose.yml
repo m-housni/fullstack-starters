@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80" # Map React app to port 3000
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000" # Map Node.js backend to port 5000
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432 # Use 27017 for MongoDB
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=devboard
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine # Replace with mongo:6 if using MongoDB
+    container_name: devboard_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: devboard
+    ports:
+      - "5432:5432" # Use 27017:27017 for MongoDB
+    volumes:
+      - db_data:/var/lib/postgresql/data # Use /data/db for MongoDB
+
+volumes:
+  db_data:
